@@ -1,8 +1,10 @@
 #!/usr/bin/python
 import sys, getopt, locale
 from datetime import datetime
-from subprocess import call
+from subprocess import Popen, PIPE,call
 from operator import  itemgetter
+import time
+import re
 
 
 class do2en:
@@ -139,9 +141,32 @@ class do2en:
             print "duplicate"
             return
         sendetNotes.add(entry['date'].strftime(self.dataInTitleFormat) + entry['text'])
-        call( gnArgs)
+
+        self.doCmd(gnArgs,0)
 
 
+    def doCmd(self,cmd,wait):
+
+        if(wait>60):
+            print ("waiting %s minutes"%  str(wait / 60))
+            time.sleep(60 + wait % 60)
+            self.doCmd(cmd,wait - 60 - wait % 60);
+            return
+        if(wait>0):
+            print "waiting " + wait + "s"
+            time.sleep(1)
+            self.doCmd(cmd,wait-1);
+            return
+
+        process = Popen(cmd, stdout=PIPE)
+        out, err = process.communicate()
+        if(out.startswith("\nRate Limit Hit: Please wait")):
+            print(out)
+            timeToWait = int(re.search(r'\d+', out).group())
+            self.doCmd(cmd,timeToWait)
+        else:
+            print(out)
+            sys.exit(1)
 
 
 if __name__ == "__main__":
