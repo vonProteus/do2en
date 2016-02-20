@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import sys, getopt, locale
 from datetime import datetime
-from subprocess import Popen, PIPE,call
+from subprocess import Popen, PIPE
 from operator import  itemgetter
 import time
 import re
