@@ -153,7 +153,7 @@ class do2en:
             self.doCmd(cmd,wait - 60 - wait % 60);
             return
         if(wait>0):
-            print "waiting " + wait + "s"
+            print ("waiting %ss"%  str(wait))
             time.sleep(1)
             self.doCmd(cmd,wait-1);
             return
@@ -166,8 +166,6 @@ class do2en:
             self.doCmd(cmd,timeToWait)
         else:
             print(out)
-            sys.exit(1)
-
 
 if __name__ == "__main__":
     obj = do2en();
