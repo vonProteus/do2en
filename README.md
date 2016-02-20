@@ -5,7 +5,7 @@ To use this you have to have installed [Geeknote][geeknotewww] ([GitHub][geeknot
 
 ## usage
 * instal and configure Geeknote
-* ecport Entries from Day One by File > Export...
+* export Entries from Day One by File > Export...
     * export as txt
 * download this repozytory 
 * use my script
