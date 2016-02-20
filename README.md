@@ -15,7 +15,7 @@ To use this you have to have installed [Geeknote][geeknotewww] ([GitHub][geeknot
     
 
     
-[evernoteLogo]: https://raw.github.com/vonpoteus/do2en/master/images/Evernote.tiff
-[dayOneLogo]: https://raw.github.com/vonpoteus/do2en/master/images/DayOne-Mac.tiff
+[evernoteLogo]: https://raw.githubusercontent.com/vonProteus/do2en/master/images/Evernote.tiff
+[dayOneLogo]: https://raw.githubusercontent.com/vonProteus/do2en/master/images/DayOne-Mac.tiff
 [geeknoteWWW]: http://www.geeknote.me
 [geeknoteGithub]: https://github.com/VitaliyRodnenko/geeknote
