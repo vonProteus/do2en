@@ -106,11 +106,10 @@ class do2en:
         sendetNotes = set()
         entries = sorted(self.entries,key=itemgetter('photo'),reverse= True)
         for entry in entries:
+            print("%s/%s"%(str(entries.index(entry)),str(len(entries))))
             self.createNoteFromEntry(entry,sendetNotes)
 
     def createNoteFromEntry(self,entry,sendetNotes):
-
-
         gnArgs = []
         gnArgs.append("geeknote")
         gnArgs.append("create")
@@ -120,7 +119,9 @@ class do2en:
 
         title = self.titlePrefix
         if(entry['date'] != ""):
-            title += " created on " + entry['date'].strftime(self.dataInTitleFormat)
+            # title += " created on " + entry['date'].strftime(self.dataInTitleFormat)
+            gnArgs.append("--created")
+            gnArgs.append(entry['date'].strftime(self.dataInTitleFormat))
         if(entry['location'] != ""):
             title += " created in " + entry['location']
         gnArgs.append("--title")
@@ -160,12 +161,11 @@ class do2en:
 
         process = Popen(cmd, stdout=PIPE)
         out, err = process.communicate()
+        print("out:"+str(out))
+        print("err:"+str(err))
         if(out.startswith("\nRate Limit Hit: Please wait")):
-            print(out)
             timeToWait = int(re.search(r'\d+', out).group())
             self.doCmd(cmd,timeToWait)
-        else:
-            print(out)
 
 if __name__ == "__main__":
     obj = do2en();

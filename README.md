@@ -1,7 +1,7 @@
 # Day One to Evernote
 ![DayOne][dayOneLogo] ![Evernote][evernoteLogo]
 
-To use this you have to have installed [Geeknote][geeknotewww] ([GitHub][geeknoteGithub])
+To use this you have to have installed [Geeknote][geeknotewww] port from [GitHub][geeknoteGithub]
 
 ## usage
 * instal and configure Geeknote
@@ -18,4 +18,4 @@ To use this you have to have installed [Geeknote][geeknotewww] ([GitHub][geeknot
 [evernoteLogo]: https://raw.githubusercontent.com/vonProteus/do2en/master/images/Evernote.tiff
 [dayOneLogo]: https://raw.githubusercontent.com/vonProteus/do2en/master/images/DayOne-Mac.tiff
 [geeknoteWWW]: http://www.geeknote.me
-[geeknoteGithub]: https://github.com/VitaliyRodnenko/geeknote
+[geeknoteGithub]: https://github.com/jeffkowalski/geeknote
