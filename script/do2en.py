@@ -17,6 +17,9 @@ class do2en:
         self.dataEntryFormat = "%Y %B %d %H:%M"
         self.titlePrefix = "Imported from Day One"
         self.dataInTitleFormat = "%Y-%m-%d %H:%M"
+        self.dayOneDir = ""
+        self.tag = ""
+        self.oudputFile = ""
 
 
         return
@@ -34,7 +37,7 @@ class do2en:
 
     def parseParam(self, argv):
         try:
-            opts, args = getopt.getopt(argv,"he:p:n:",["entries-file=","photos-dir=","evernote-notebook="])
+            opts, args = getopt.getopt(argv,"he:p:n:t:dod:o:",["entries-file=","photos-dir=","evernote-notebook=","tag=","day-one-dir=","oudput="])
         except getopt.GetoptError:
             print sys.argv[0]+' -e <entries-file> -p <photos-dir> -n <evernote-notebook>'
             sys.exit(2)
@@ -48,8 +51,17 @@ class do2en:
                 self.photoDir = arg
             elif opt in ("-n", "--evernote-notebook"):
                 self.notebook = arg
+            elif opt in ("-t", "--tag"):
+                self.tag = arg
+            elif opt in ("-dod", "--day-one-dir"):
+                self.dayOneDir = arg
+            elif opt in ("-o", "--oudput"):
+                self.oudputFile = arg
 
-        if (self.notebook == "" or self.entriesFile == ""):
+        if (self.notebook == ""):
+            print sys.argv[0]+' -e <entries-file> -p <photos-dir> -n <evernote-notebook>'
+            sys.exit(2)
+        elif (self.dayOneDir == "" or self.entriesFile == ""):
             print sys.argv[0]+' -e <entries-file> -p <photos-dir> -n <evernote-notebook>'
             sys.exit(2)
 
@@ -133,9 +145,16 @@ class do2en:
         if(entry['photo'] != ""):
             gnArgs.append("--resource")
             gnArgs.append(self.photoDir+"/"+entry['photo'])
+
         if(entry['text'] != ""):
             gnArgs.append("--content")
             gnArgs.append(entry['text'])
+        elif(entry['photo'] == ""):
+            print "empty"
+            return
+        else:
+            gnArgs.append("--content")
+            gnArgs.append("photo only")
 
         print gnArgs
         if(entry['date'].strftime(self.dataInTitleFormat) + entry['text'] in sendetNotes):
