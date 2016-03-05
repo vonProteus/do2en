@@ -5,7 +5,8 @@ from subprocess import Popen, PIPE
 from operator import  itemgetter
 import time
 import re
-
+from os import walk
+from doentry import DOEntry
 
 class do2en:
     def __init__(self):
@@ -21,6 +22,8 @@ class do2en:
         self.tag = ""
         self.oudputFile = ""
 
+        self.doentrys = [];
+
 
         return
 
@@ -31,13 +34,20 @@ class do2en:
         print "Photo Dir is "+ self.photoDir
         print "Notebook is "+ self.notebook
 
-        self.readEntries()
+        print "Oudput File is "+ self.oudputFile
+        print "Day One Dir is "+ self.dayOneDir
+        print "Tag is "+ self.tag
 
-        self.sentToEvernotr()
+        if(self.entriesFile != "" ):
+            self.readEntries()
+            self.sentToEvernotr()
+        elif(self.dayOneDir != ""):
+            self.readDayOneDir()
+
 
     def parseParam(self, argv):
         try:
-            opts, args = getopt.getopt(argv,"he:p:n:t:dod:o:",["entries-file=","photos-dir=","evernote-notebook=","tag=","day-one-dir=","oudput="])
+            opts, args = getopt.getopt(argv,"he:p:n:t:d:o:",["entries-file=","photos-dir=","evernote-notebook=","tag=","day-one-dir=","oudput="])
         except getopt.GetoptError:
             print sys.argv[0]+' -e <entries-file> -p <photos-dir> -n <evernote-notebook>'
             sys.exit(2)
@@ -53,7 +63,7 @@ class do2en:
                 self.notebook = arg
             elif opt in ("-t", "--tag"):
                 self.tag = arg
-            elif opt in ("-dod", "--day-one-dir"):
+            elif opt in ("-d", "--day-one-dir"):
                 self.dayOneDir = arg
             elif opt in ("-o", "--oudput"):
                 self.oudputFile = arg
@@ -61,7 +71,7 @@ class do2en:
         if (self.notebook == ""):
             print sys.argv[0]+' -e <entries-file> -p <photos-dir> -n <evernote-notebook>'
             sys.exit(2)
-        elif (self.dayOneDir == "" or self.entriesFile == ""):
+        elif (self.dayOneDir == "" and self.entriesFile == ""):
             print sys.argv[0]+' -e <entries-file> -p <photos-dir> -n <evernote-notebook>'
             sys.exit(2)
 
@@ -164,7 +174,6 @@ class do2en:
 
         self.doCmd(gnArgs,0)
 
-
     def doCmd(self,cmd,wait):
 
         if(wait>60):
@@ -185,6 +194,13 @@ class do2en:
         if(out.startswith("\nRate Limit Hit: Please wait")):
             timeToWait = int(re.search(r'\d+', out).group())
             self.doCmd(cmd,timeToWait)
+
+    def readDayOneDir(self):
+        for (dirpath, dirnames, filenames) in walk(self.dayOneDir+"/entries/"):
+            for filename  in filenames:
+                self.doentrys.append(DOEntry.FromFile(str(dirpath+filename)))
+            break
+        return
 
 if __name__ == "__main__":
     obj = do2en();
