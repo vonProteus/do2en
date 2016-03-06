@@ -6,6 +6,9 @@ from operator import  itemgetter
 import time
 import re
 from os import walk
+import os.path
+import codecs
+
 from doentry import DOEntry
 
 class do2en:
@@ -18,9 +21,11 @@ class do2en:
         self.dataEntryFormat = "%Y %B %d %H:%M"
         self.titlePrefix = "Imported from Day One"
         self.dataInTitleFormat = "%Y-%m-%d %H:%M"
+        self.evernoteFormat = "%Y%m%dT%H%M%SZ"
         self.dayOneDir = ""
         self.tag = ""
         self.oudputFile = ""
+        self.photoTag = "DOPhoto"
 
         self.doentrys = [];
 
@@ -43,6 +48,7 @@ class do2en:
             self.sentToEvernotr()
         elif(self.dayOneDir != ""):
             self.readDayOneDir()
+            self.saveOutFile()
 
 
     def parseParam(self, argv):
@@ -201,9 +207,111 @@ class do2en:
                 doe = DOEntry.fromFile(str(dirpath+filename))
                 self.doentrys.append(doe)
 
-                print str(doe.getCreateDate()) +" => " + doe.getText()
+                # print str(doe.getCreateDate()) +" => " + str(doe.getTags())
             break
         return
+
+    def saveOutFile(self):
+        out = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" \
+            "<!DOCTYPE en-export SYSTEM \"http://xml.evernote.com/pub/evernote-export3.dtd\">\n" \
+            "<en-export export-date=\""+datetime.now().strftime(self.evernoteFormat)+"\" application=\"do2en\" version=\"do2en 0.1\">\n"
+        for doe in self.doentrys:
+            out += self.makeNote(doe)
+
+        out += "</en-export>"
+        print out
+
+        target = codecs.open(self.oudputFile, 'w', 'utf-8')
+        target.truncate()
+        target.write(out)
+        target.close()
+        return
+
+
+    def makeNote(self,doe):
+        note = "\t<note>\n"
+        note += "\t\t" + self.makeTitle(doe) + "\n"
+        note += self.makeTags(doe)
+
+        note += "\t\t<note-attributes>\n"
+        note += self.makeAttributes(doe)
+        note += "\t\t</note-attributes>\n"
+
+        note += self.makeContent(doe)
+
+        note += self.makeTime(doe)
+
+        note += "\t</note>\n"
+        return note
+
+    def makeTitle(self,doe):
+        title ="<title>"
+        title += self.titlePrefix
+        if doe.getLocationName() != "":
+            title += " created in " +  doe.getLocationName()
+        title +="</title>"
+        return title
+
+    def makeTags(self,doe):
+        tags = self.makeTag(self.tag)
+        for tag in doe.getTags():
+            tags+= self.makeTag(tag)
+
+        if self.photoFrom(doe) != "":
+            tags+= self.makeTag(self.photoTag)
+
+        return tags
+
+    def makeTag(self,tag):
+        if tag == "":
+            return ""
+        tagout = "\t\t<tag>"+tag+"</tag>\n"
+        return tagout
+
+    def photoFrom(self,doe):
+        photo = self.dayOneDir + "/photos/"+doe.getUUID()+".jpg"
+
+        if os.path.isfile(photo):
+            return photo
+        else:
+            return ""
+
+
+    def makeAttributes(self,doe):
+        attributes = "\t\t\t<source>"+doe.getSource()+"</source>\n"
+        attributes += "\t\t\t<reminder-order>0</reminder-order>\n"
+        if doe.getLocation() != {}:
+             attributes += "\t\t\t<latitude>"+str(doe.getLocation()["latitude"]) +"</latitude>\n"
+             attributes += "\t\t\t<longitude>"+str(doe.getLocation()["longitude"]) +"</longitude>\n"
+        return attributes
+
+    def makeContent(self,doe):
+        content = "\t\t<content><![CDATA[<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" \
+            "<!DOCTYPE en-note SYSTEM \"http://xml.evernote.com/pub/enml2.dtd\">\n" \
+            "<en-note>\n"
+
+        lines = doe.getText().split("\n")
+
+        for line in lines:
+            content += "<div>"+line+"</div>\n"
+
+        photo = self.photoFrom(doe)
+
+        if photo != "":
+            content += "<div>"+photo+"</div>\n"
+
+        content += "</en-note>]]></content>\n"
+        return content
+
+    def makeTime(self,doe):
+        timeCU = ""
+
+        time = doe.getCreateDate().strftime(self.evernoteFormat)
+
+        timeCU +="\t\t<created>"+time+"</created>\n"
+        timeCU +="\t\t<updated>"+time+"</updated>\n"
+
+        return timeCU
 
 if __name__ == "__main__":
     obj = do2en();
