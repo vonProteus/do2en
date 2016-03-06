@@ -336,18 +336,15 @@ class do2en:
         resource = "\t\t<resource>\n"
 
         rfile = file(path,'rb')
-        data = ""
-        data = base64.b64encode(rfile.read())
-        resource += "\t\t\t<data encoding=\"base64\">"+data+"</data>\n"
 
         mime = self.mimeFrom(path)
         resource += "\t\t\t<mime>"+mime+"</mime>\n"
-
         resource += self.makeResourceAttributes(rfile)
 
+        data = base64.b64encode(rfile.read())
+        resource += "\t\t\t<data encoding=\"base64\">"+data+"</data>\n"
         resource += "\t\t</resource>\n"
 
-        print resource
         return resource;
 
     def mimeFrom(self,path):
