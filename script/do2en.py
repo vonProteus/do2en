@@ -198,7 +198,10 @@ class do2en:
     def readDayOneDir(self):
         for (dirpath, dirnames, filenames) in walk(self.dayOneDir+"/entries/"):
             for filename  in filenames:
-                self.doentrys.append(DOEntry.FromFile(str(dirpath+filename)))
+                doe = DOEntry.fromFile(str(dirpath+filename))
+                self.doentrys.append(doe)
+
+                print str(doe.getCreateDate()) +" => " + doe.getText()
             break
         return
 
