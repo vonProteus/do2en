@@ -8,6 +8,13 @@ import re
 from os import walk
 import os.path
 import codecs
+import hashlib
+import base64
+import magic
+import exifread
+
+
+
 
 from doentry import DOEntry
 
@@ -219,7 +226,7 @@ class do2en:
             out += self.makeNote(doe)
 
         out += "</en-export>"
-        print out
+        # print out
 
         target = codecs.open(self.oudputFile, 'w', 'utf-8')
         target.truncate()
@@ -240,6 +247,11 @@ class do2en:
         note += self.makeContent(doe)
 
         note += self.makeTime(doe)
+
+        photo = self.photoFrom(doe)
+
+        if photo != "":
+            note += self.makeResource(photo)
 
         note += "\t</note>\n"
         return note
@@ -298,7 +310,9 @@ class do2en:
         photo = self.photoFrom(doe)
 
         if photo != "":
-            content += "<div>"+photo+"</div>\n"
+            photoHash = self.md5File(photo)
+            mime = self.mimeFrom(photo)
+            content += "<en-media type=\""+mime+"\" hash=\""+photoHash+"\" />\n"
 
         content += "</en-note>]]></content>\n"
         return content
@@ -312,6 +326,94 @@ class do2en:
         timeCU +="\t\t<updated>"+time+"</updated>\n"
 
         return timeCU
+
+    def md5File(self,path):
+        return hashlib.md5(open(path, 'rb').read()).hexdigest()
+
+    def makeResource(self,path):
+        if not os.path.isfile(path):
+            return ""
+        resource = "\t\t<resource>\n"
+
+        rfile = file(path,'rb')
+        data = ""
+        data = base64.b64encode(rfile.read())
+        resource += "\t\t\t<data encoding=\"base64\">"+data+"</data>\n"
+
+        mime = self.mimeFrom(path)
+        resource += "\t\t\t<mime>"+mime+"</mime>\n"
+
+        resource += self.makeResourceAttributes(rfile)
+
+        resource += "\t\t</resource>\n"
+
+        print resource
+        return resource;
+
+    def mimeFrom(self,path):
+        mime = magic.Magic(mime=True)
+        return mime.from_file(path)
+
+    def makeResourceAttributes(self,rfile):
+        resourceAttributes =""
+
+
+        tags = exifread.process_file(rfile)
+
+        resourceAttributes += "\t\t\t<width>"+str(tags["EXIF ExifImageWidth"])+"</width>\n"
+        resourceAttributes += "\t\t\t<height>"+str(tags["EXIF ExifImageLength"])+"</height>\n"
+        resourceAttributes += "\t\t\t<duration>0</duration>\n"
+
+        resourceAttributes += "\t\t\t<resource-attributes>\n"
+
+        # print tags
+        timestamp = ""
+        if "EXIF DateTimeOriginal" in tags:
+            timestamp = datetime.strptime(tags["EXIF DateTimeOriginal"].values,"%Y:%m:%d %H:%M:%S").strftime(self.evernoteFormat)
+        elif "GPS GPSTimeStamp" in tags:
+            timestamp = datetime.strptime(tags["GPS GPSTimeStamp"].values,"%Y:%m:%d %H:%M:%S").strftime(self.evernoteFormat)
+
+        if timestamp != "":
+            resourceAttributes += "\t\t\t\t<timestamp>"+timestamp+"</timestamp>\n"
+
+        if "GPS GPSLatitude" in tags and "GPS GPSLongitude" in tags:
+            latitude = self.convertToDegress(tags["GPS GPSLatitude"])
+            longitude = self.convertToDegress(tags["GPS GPSLongitude"])
+
+            if tags["GPS GPSLatitudeRef"].values != "N":
+                latitude = 0-latitude
+
+            if tags["GPS GPSLongitudeRef"].values != "E":
+                longitude = 0-longitude
+
+            latitude = str(latitude)
+            longitude = str(longitude)
+
+            resourceAttributes += "\t\t\t\t<latitude>"+latitude+"</latitude>\n"
+            resourceAttributes += "\t\t\t\t<longitude>"+longitude+"</longitude>\n"
+
+        if "Image Model" in tags :
+            cameraMake= tags["Image Model"].values
+            resourceAttributes+="\t\t\t\t<camera-make>"+cameraMake+"</camera-make>\n"
+
+        resourceAttributes += "\t\t\t</resource-attributes>\n"
+        return resourceAttributes
+
+    def convertToDegress(self,gps):
+        d0 = gps.values[0].num
+        d1 = gps.values[0].den
+        d = float(d0) / float(d1)
+
+        m0 = gps.values[1].num
+        m1 = gps.values[1].den
+        m = float(m0) / float(m1)
+
+        s0 = gps.values[2].num
+        s1 = gps.values[2].den
+        s = float(s0) / float(s1)
+
+        return d + (m / 60.0) + (s / 3600.0)
+
 
 if __name__ == "__main__":
     obj = do2en();
