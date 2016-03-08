@@ -411,6 +411,8 @@ class do2en:
             cameraMake= tags["Image Model"].values
             resourceAttributes+="\t\t\t\t<camera-make>"+cameraMake+"</camera-make>\n"
 
+        resourceAttributes+="\t\t\t\t<file-name>"+rfile.name+"</file-name>\n"
+
         resourceAttributes += "\t\t\t</resource-attributes>\n"
         return resourceAttributes
 
