@@ -1,12 +1,14 @@
 import plistlib
 
 class DOEntry:
-    def __init__(self):
+    def __init__(self,path):
         self.plist = []
+        self.path = path
         return
+
     @staticmethod
     def fromFile(filePath):
-        doe =  DOEntry()
+        doe =  DOEntry(filePath)
         doe.plist = plistlib.readPlist(filePath)
 
         # print(doe.plist)
@@ -59,3 +61,6 @@ class DOEntry:
 
     def getSource(self):
         return self.plist["Creator"]["Software Agent"]
+
+    def getFilePath(self):
+        return self.path

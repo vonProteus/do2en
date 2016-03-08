@@ -13,7 +13,10 @@ import base64
 import magic
 import exifread
 
+from lxml import etree
+import urllib2
 
+from StringIO import StringIO
 
 
 from doentry import DOEntry
@@ -222,11 +225,15 @@ class do2en:
         out = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" \
             "<!DOCTYPE en-export SYSTEM \"http://xml.evernote.com/pub/evernote-export3.dtd\">\n" \
             "<en-export export-date=\""+datetime.now().strftime(self.evernoteFormat)+"\" application=\"do2en\" version=\"do2en 0.1\">\n"
+
         for doe in self.doentrys:
-            out += self.makeNote(doe)
+            note = self.makeNote(doe)
+            out += note
 
         out += "</en-export>"
         # print out
+
+
 
         target = codecs.open(self.oudputFile, 'w', 'utf-8')
         target.truncate()
@@ -311,8 +318,12 @@ class do2en:
 
         if photo != "":
             photoHash = self.md5File(photo)
-            mime = self.mimeFrom(photo)
-            content += "<en-media type=\""+mime+"\" hash=\""+photoHash+"\" />\n"
+            photoMime = self.mimeFrom(photo)
+            content += "<en-media type=\""+photoMime+"\" hash=\""+photoHash+"\" />\n"
+
+        hash = self.md5File(doe.getFilePath())
+        mime = self.mimeFrom(doe.getFilePath())
+        content += "<en-media type=\""+mime+"\" hash=\""+hash+"\" />\n"
 
         content += "</en-note>]]></content>\n"
         return content
@@ -341,7 +352,9 @@ class do2en:
         resource += "\t\t\t<mime>"+mime+"</mime>\n"
         resource += self.makeResourceAttributes(rfile)
 
-        data = base64.b64encode(rfile.read())
+        with open(path, "rb") as ffile:
+            data = base64.b64encode(ffile.read())
+        # data = "sdfsdfsdfsdfsdfsdfsdf"
         resource += "\t\t\t<data encoding=\"base64\">"+data+"</data>\n"
         resource += "\t\t</resource>\n"
 
