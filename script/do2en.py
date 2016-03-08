@@ -260,6 +260,8 @@ class do2en:
         if photo != "":
             note += self.makeResource(photo)
 
+        note += self.makeResource(doe.getFilePath())
+
         note += "\t</note>\n"
         return note
 
@@ -370,8 +372,11 @@ class do2en:
 
         tags = exifread.process_file(rfile)
 
-        resourceAttributes += "\t\t\t<width>"+str(tags["EXIF ExifImageWidth"])+"</width>\n"
-        resourceAttributes += "\t\t\t<height>"+str(tags["EXIF ExifImageLength"])+"</height>\n"
+        if "EXIF ExifImageWidth" in tags:
+            resourceAttributes += "\t\t\t<width>"+str(tags["EXIF ExifImageWidth"])+"</width>\n"
+
+        if "EXIF ExifImageLength" in tags:
+            resourceAttributes += "\t\t\t<height>"+str(tags["EXIF ExifImageLength"])+"</height>\n"
         resourceAttributes += "\t\t\t<duration>0</duration>\n"
 
         resourceAttributes += "\t\t\t<resource-attributes>\n"
