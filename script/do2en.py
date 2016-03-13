@@ -84,11 +84,10 @@ class do2en:
             elif opt in ("-o", "--oudput"):
                 self.oudputFile = arg
 
-        if (self.notebook == ""):
+        if (self.dayOneDir == "" and self.entriesFile == ""):
             print sys.argv[0]+' -e <entries-file> -p <photos-dir> -n <evernote-notebook>'
-            sys.exit(2)
-        elif (self.dayOneDir == "" and self.entriesFile == ""):
-            print sys.argv[0]+' -e <entries-file> -p <photos-dir> -n <evernote-notebook>'
+            print 'OR'
+            print sys.argv[0]+' -t <tagWhichWillByApplaiedToAllNotes" -d <pathToJournal.dayone> -o <outpootFile.enex>'
             sys.exit(2)
 
     def readEntries(self):
@@ -213,7 +212,10 @@ class do2en:
 
     def readDayOneDir(self):
         for (dirpath, dirnames, filenames) in walk(self.dayOneDir+"/entries/"):
+            i = 1
             for filename  in filenames:
+                print 'reading '+str(i)+'/'+str(len(filenames))
+                i += 1
                 doe = DOEntry.fromFile(str(dirpath+filename))
                 self.doentrys.append(doe)
 
@@ -222,22 +224,23 @@ class do2en:
         return
 
     def saveOutFile(self):
-        out = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" \
-            "<!DOCTYPE en-export SYSTEM \"http://xml.evernote.com/pub/evernote-export3.dtd\">\n" \
-            "<en-export export-date=\""+datetime.now().strftime(self.evernoteFormat)+"\" application=\"do2en\" version=\"do2en 0.1\">\n"
-
-        for doe in self.doentrys:
-            note = self.makeNote(doe)
-            out += note
-
-        out += "</en-export>"
-        # print out
-
-
 
         target = codecs.open(self.oudputFile, 'w', 'utf-8')
         target.truncate()
-        target.write(out)
+        start = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" \
+            "<!DOCTYPE en-export SYSTEM \"http://xml.evernote.com/pub/evernote-export3.dtd\">\n" \
+            "<en-export export-date=\""+datetime.now().strftime(self.evernoteFormat)+"\" application=\"do2en\" version=\"do2en 0.1\">\n"
+        target.write(start)
+        i = 1
+        for doe in self.doentrys:
+            print 'converting '+str(i)+'/'+str(len(self.doentrys))
+            i += 1
+            note = self.makeNote(doe)
+            target.write(note)
+
+        end = "</en-export>"
+
+        target.write(end)
         target.close()
         return
 
