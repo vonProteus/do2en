@@ -13,10 +13,6 @@ import base64
 import magic
 import exifread
 
-from lxml import etree
-import urllib2
-
-from StringIO import StringIO
 
 
 from doentry import DOEntry
