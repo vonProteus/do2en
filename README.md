@@ -1,4 +1,4 @@
-# Day One to Evernote
+# Day One Classic to Evernote
 ![DayOne][dayOneLogo] ![Evernote][evernoteLogo]
 
 To use this you have to have installed [Geeknote][geeknotewww] port from [GitHub][geeknoteGithub] or Official Ecernote Client
@@ -10,7 +10,7 @@ To use this you have to have installed [Geeknote][geeknotewww] port from [GitHub
 * download this repozytory 
 * use my script
     
-    $ pythone script/do2en.py -e pathToExportedEntryFile.txt -p pathToExportedPhotosDirectory -n existingEvernoteNotebook
+    $ python script/do2en.py -e pathToExportedEntryFile.txt -p pathToExportedPhotosDirectory -n existingEvernoteNotebook
     
 ## usage with oficial Evernote client 
 
@@ -19,7 +19,7 @@ this metod is faster but requaiers oficial evernote client to import my output f
 * download this repository
 * use my script
     
-    $ pythone script/do2en.py -t "tag which will by applaied to all notes" -d pathToJournal.dayone -o outputFile.enex
+    $ python script/do2en.py -t "tag which will by applaied to all notes" -d pathToJournal.dayone -o outputFile.enex
     
     * *pathToJournal.dayone* path to jurnal filder ex.: *~/Dropbox/Apps/Day\ One/Journal.dayone/*
     * *outputFile.enex* this file you shoud inport to your Evernote

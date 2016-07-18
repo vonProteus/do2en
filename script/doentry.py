@@ -60,7 +60,11 @@ class DOEntry:
         return locationName
 
     def getSource(self):
-        return self.plist["Creator"]["Software Agent"]
+        try:
+            return self.plist["Creator"]["Software Agent"]
+        except KeyError, e:
+            print 'I got a KeyError - for ["Creator"]["Software Agent"] in "%s"' % str(self.getFilePath())
+            return ""
 
     def getFilePath(self):
         return self.path
